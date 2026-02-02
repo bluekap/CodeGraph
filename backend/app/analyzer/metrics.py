@@ -50,13 +50,17 @@ class MetricsAnalyzer:
                 
                 # Count functions and classes
                 for item in complexity_results:
-                    if item.type == 'function':
-                        metrics['functions'] += 1
-                    elif item.type == 'class':
+                    # Radon items have a 'letter' attribute: C for Class, F for Function, M for Method
+                    letter = getattr(item, 'letter', None)
+                    if letter == 'C':
                         metrics['classes'] += 1
+                    elif letter in ('F', 'M'):
+                        metrics['functions'] += 1
             
         except Exception as e:
+            import traceback
             print(f"Error analyzing {file_path}: {e}")
+            traceback.print_exc()
         
         return metrics
     

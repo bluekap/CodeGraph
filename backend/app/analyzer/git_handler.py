@@ -4,6 +4,7 @@ Git repository handler for cloning and analyzing repositories
 import os
 import tempfile
 import shutil
+import stat
 from pathlib import Path
 from typing import List, Optional
 from git import Repo, GitCommandError
@@ -145,8 +146,26 @@ class GitHandler:
     def cleanup(self):
         """Clean up temporary directory"""
         if self.temp_dir and self.temp_dir.exists():
+            def onerror(func, path, exc_info):
+                """
+                Error handler for ``shutil.rmtree``.
+
+                If the error is due to an access error (read only file)
+                it attempts to add write permission and then retries.
+
+                If the error is for another reason it re-raises the error.
+
+                Usage : ``shutil.rmtree(path, onerror=onerror)``
+                """
+                if not os.access(path, os.W_OK):
+                    # Is the error an access error ?
+                    os.chmod(path, stat.S_IWUSR)
+                    func(path)
+                else:
+                    raise
+
             try:
-                shutil.rmtree(self.temp_dir)
+                shutil.rmtree(self.temp_dir, onerror=onerror)
                 print(f"Cleaned up {self.temp_dir}")
             except Exception as e:
                 print(f"Error cleaning up: {e}")
