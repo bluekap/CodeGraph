@@ -194,6 +194,7 @@ function App() {
                   edges={graphData.edges}
                   onNodeClick={setSelectedNode}
                   searchTerm={searchTerm}
+                  selectedNodeId={selectedNode?.id}
                 />
               </div>
 
