@@ -18,7 +18,7 @@ function App() {
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
       if (saved === 'light' || saved === 'dark') return saved;
-    } catch (_) {}
+    } catch (_) { }
     return 'light';
   });
 
@@ -26,7 +26,7 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
     try {
       localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch (_) {}
+    } catch (_) { }
   }, [theme]);
 
   const handleAnalyze = async () => {
@@ -176,7 +176,7 @@ function App() {
                   placeholder="🔍 Search files..."
                   className="search-input"
                 />
-                
+
                 {selectedNode && (
                   <div className="selected-info">
                     <strong>{selectedNode.name}</strong>
@@ -223,7 +223,7 @@ function App() {
 
       <footer className="app-footer">
         <p>
-          Built with ❤️ by <a href="https://bluekap.github.io" target="_blank" rel="noopener noreferrer">Vaibhav Goswami</a>
+          Built with ❤️ by <a href="https://github.com/bluekap" target="_blank" rel="noopener noreferrer">bluekap</a>
           {' | '}
           <a href="https://github.com/bluekap/codegraph" target="_blank" rel="noopener noreferrer">GitHub</a>
         </p>

@@ -45,3 +45,6 @@ logs/
 
 # Docker
 .docker/
+
+# Project Summary
+PROJECT_SUMMARY.md

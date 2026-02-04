@@ -1,215 +1,135 @@
 # CodeGraph 🕸️
 
-> Beautiful, interactive dependency visualizations for any GitHub repository
+<p align="center">
+  <img src="docs/assets/banner.png" alt="CodeGraph Banner" width="100%">
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![React](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
-[![D3.js](https://img.shields.io/badge/d3.js-v7-orange.svg)](https://d3js.org/)
+<p align="center">
+  <strong>Transform your GitHub repositories into beautiful, interactive, and insightful dependency graphs.</strong>
+</p>
 
-## ✨ Features
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+  <img src="https://img.shields.io/badge/Python-3.11+-blue.svg" alt="Python">
+  <img src="https://img.shields.io/badge/React-18.0+-61DAFB.svg" alt="React">
+  <img src="https://img.shields.io/badge/D3.js-v7-orange.svg" alt="D3">
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+</p>
 
-- 🎨 **Interactive Network Visualization** - Force-directed graph with smooth physics simulation
-- 🔍 **Smart Dependency Analysis** - Analyzes Python imports and file relationships
-- 📊 **Complexity Metrics** - Color-coded nodes based on cyclomatic complexity
-- 🎯 **Intelligent Highlighting** - Click nodes to trace dependency chains
-- 🔎 **Search & Filter** - Quickly find specific files or modules
-- 📸 **Export Ready** - Generate shareable HTML reports
-- ⚡ **Fast & Efficient** - Caches analysis results for quick re-renders
+---
 
-## 🎬 Demo
+## 🎯 What is CodeGraph?
 
-![CodeGraph Demo](docs/demo.gif)
+**CodeGraph** is a powerful full-stack visualization tool designed to help developers and architects understand complex codebases at a glance. By analyzing repository structures and import relationships, it generates an interactive, force-directed network graph that reveals the "hidden anatomy" of your project.
 
-*Analyzing the Flask repository - watch dependencies come alive!*
+Whether you're onboarding to a new project, refactoring legacy code, or documenting your architecture, CodeGraph makes the invisible visible.
+
+## ✨ Key Features
+
+- 🎨 **Force-Directed Visualization** – Explore your codebase through a dynamic, responsive graph with smooth physics simulations.
+- 📊 **Rich Metrics & Heatmaps** – Nodes are color-coded by **Cyclomatic Complexity** (Green → Orange → Red) and sized by **Lines of Code**.
+- 🎯 **Intelligent Dependency Tracing** – Click any node to instantly highlight its upstream and downstream dependencies.
+- 🔍 **Real-time Search** – Quickly locate specific files or modules within large codebases.
+- 🌓 **Theme Support** – Beautiful Light and Dark modes tailored for developer comfort.
+- ⚡ **Async Analysis** – Built with FastAPI for high-performance, non-blocking repository processing.
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### ⚡ One-Click Start (Recommended)
 
-- Python 3.11+
-- Node.js 18+
-- Git
+The easiest way to get CodeGraph up and running is to use our bundled start scripts. These will automatically handle environment setup, dependency installation, and launch both the backend and frontend for you.
 
-### Installation
+**Windows:**
+```cmd
+start.bat
+```
 
+**macOS / Linux:**
 ```bash
-# Clone the repository
-git clone https://github.com/bluekap/codegraph.git
-cd codegraph
-
-# Backend setup
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-
-# Frontend setup
-cd ../frontend
-npm install
+chmod +x start.sh
+./start.sh
 ```
 
-### Running Locally
+---
 
-```bash
-# Terminal 1 - Start backend
-cd backend
-uvicorn app.main:app --reload --port 8000
+### 📋 Prerequisites
+- **Python 3.10+**
+- **Node.js 18+**
+- **Git**
 
-# Terminal 2 - Start frontend
-cd frontend
-npm start
+### 🛠️ Manual Setup (Optional)
+
+If you prefer to set up the environment manually:
+
+1. **Clone the repo:**
+   ```bash
+   git clone https://github.com/bluekap/codegraph.git
+   cd codegraph
+   ```
+2. **Backend**: `cd backend && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt && uvicorn app.main:app --reload`
+3. **Frontend**: `cd frontend && npm install && npm start`
+
+Visit **`http://localhost:3000`** and enter any public GitHub URL (e.g., `https://github.com/pallets/flask`)!
+
+## 🏗️ How It Works
+
+```mermaid
+graph LR
+    A[User Input URL] --> B[FastAPI Backend]
+    B --> C[GitPython Cloner]
+    C --> D[AST Parser & Metrics]
+    D --> E[Graph Data Generator]
+    E --> F[React + D3.js Frontend]
+    F --> G[Interactive Visualization]
 ```
 
-Visit `http://localhost:3000` and paste any GitHub repo URL!
-
-## 🏗️ Architecture
-
-```
-codegraph/
-├── backend/                 # FastAPI backend
-│   ├── app/
-│   │   ├── analyzer/       # Repository analysis engine
-│   │   │   ├── git_handler.py
-│   │   │   ├── dependency_parser.py
-│   │   │   └── metrics.py
-│   │   ├── models/         # Pydantic models
-│   │   ├── routers/        # API endpoints
-│   │   └── main.py         # FastAPI app
-│   └── requirements.txt
-├── frontend/                # React + D3.js frontend
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── NetworkGraph.tsx    # D3.js visualization
-│   │   │   ├── Controls.tsx        # Search/filter UI
-│   │   │   └── Tooltip.tsx         # Node details
-│   │   ├── services/       # API client
-│   │   └── App.tsx
-│   └── package.json
-├── docker-compose.yml       # Container orchestration
-└── README.md
-```
-
-## 🎨 Visualizations
-
-### 1. Dependency Network
-- **Nodes**: Files/modules sized by lines of code
-- **Edges**: Import relationships with directional arrows
-- **Colors**: Complexity heatmap (green → yellow → red)
-- **Physics**: Force-directed layout with collision detection
-
-### 2. Interactive Features
-- **Hover**: View file metrics (LOC, complexity, imports)
-- **Click**: Highlight dependency chains
-- **Drag**: Reposition nodes manually
-- **Zoom**: Explore large codebases
-- **Search**: Filter by filename or module
-
-## 📊 Metrics Analyzed
-
-- **Lines of Code** (LOC) per file
-- **Cyclomatic Complexity** using Radon
-- **Import Dependencies** (direct and transitive)
-- **Module Coupling** strength
-- **Change Frequency** (git history)
-- **File Size** distribution
+1.  **Clone**: The backend performs a shallow clone of the target repository.
+2.  **Analyze**: Python's `ast` module parses imports, while `Radon` calculates complexity metrics.
+3.  **Graphing**: Relationships are mapped into a JSON structure compatible with D3.js.
+4.  **Visualize**: The frontend renders a force simulation where every node is interactive.
 
 ## 🛠️ Tech Stack
 
-**Backend:**
-- FastAPI - Modern async Python web framework
-- GitPython - Git repository interaction
-- Radon - Code complexity metrics
-- NetworkX - Graph algorithms
-- AST - Python import parsing
+### Backend
+- **FastAPI**: Modern, high-performance web framework.
+- **GitPython**: Handling repository operations.
+- **Radon**: Computing cyclomatic complexity.
+- **NetworkX**: Advanced graph algorithms and structure.
 
-**Frontend:**
-- React 18 - UI framework
-- TypeScript - Type safety
-- D3.js v7 - Data visualization
-- Tailwind CSS - Styling
-- Axios - API client
-
-**DevOps:**
-- Docker & Docker Compose
-- GitHub Actions - CI/CD
-- pytest - Backend testing
-- Jest - Frontend testing
-
-## 📝 API Endpoints
-
-### Analyze Repository
-```http
-POST /api/analyze
-Content-Type: application/json
-
-{
-  "repo_url": "https://github.com/pallets/flask"
-}
-
-Response:
-{
-  "nodes": [
-    {
-      "id": "flask/app.py",
-      "loc": 250,
-      "complexity": 12,
-      "language": "python"
-    }
-  ],
-  "edges": [
-    {
-      "source": "flask/app.py",
-      "target": "flask/helpers.py"
-    }
-  ],
-  "metrics": {
-    "total_files": 45,
-    "total_loc": 12500,
-    "avg_complexity": 8.3
-  }
-}
-```
+### Frontend
+- **React 18**: Component-based UI logic.
+- **TypeScript**: Type-safe development.
+- **D3.js (v7)**: Industry-standard data visualization.
+- **Tailwind CSS**: Modern, utility-first styling.
 
 ## 🎯 Roadmap
 
-- [x] Core dependency analysis
-- [x] Interactive D3.js visualization
-- [x] Python import parsing
-- [ ] Multi-language support (JavaScript, Java, Go)
-- [ ] GitHub API integration (no cloning needed)
-- [ ] Historical analysis (code evolution over time)
-- [ ] Team collaboration features
-- [ ] VS Code extension
-- [ ] CLI tool for CI/CD integration
+- [ ] **Multi-language Support**: Support for JS/TS, Java, and Go.
+- [ ] **GitHub API Integration**: Analyze without full cloning for faster results.
+- [ ] **Historical Analysis**: Visualize how dependencies have evolved across commits.
+- [ ] **Export Options**: Save your graphs as high-resolution PNG or SVG.
+- [ ] **VS Code Extension**: Bring CodeGraph directly into your editor.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Inspired by [Sourcetrail](https://www.sourcetrail.com/) and [Gource](https://gource.io/)
-- Built with amazing open-source tools
-- D3.js force simulation examples by Mike Bostock
+Distributed under the **MIT License**. See `LICENSE` for more information.
 
 ## 📧 Contact
 
-**Vaibhav Goswami**
-- Portfolio: [bluekap.github.io](https://bluekap.github.io)
-- GitHub: [@bluekap](https://github.com/bluekap)
-- Email: vabg96@yahoo.com
+**bluekap** - [@bluekap](https://github.com/bluekap) - vabg96@yahoo.com
+
+**Project Link**: [https://github.com/bluekap/codegraph](https://github.com/bluekap/codegraph)
 
 ---
-
-⭐ **Star this repo if you find it useful!** ⭐
+<p align="center">Made with ❤️ for the Developer Community</p>
+<p align="center">⭐ If you like this project, give it a star on GitHub!</p>
