@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
-  <img src="https://img.shields.io/badge/Python-3.11+-blue.svg" alt="Python">
+  <img src="https://img.shields.io/badge/Python-3.10+-blue.svg" alt="Python">
   <img src="https://img.shields.io/badge/React-18.0+-61DAFB.svg" alt="React">
   <img src="https://img.shields.io/badge/D3.js-v7-orange.svg" alt="D3">
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
@@ -74,19 +74,31 @@ Visit **`http://localhost:3000`** and enter any public GitHub URL (e.g., `https:
 ## 🏗️ How It Works
 
 ```mermaid
-graph LR
-    A[User Input URL] --> B[FastAPI Backend]
-    B --> C[GitPython Cloner]
-    C --> D[AST Parser & Metrics]
-    D --> E[Graph Data Generator]
-    E --> F[React + D3.js Frontend]
-    F --> G[Interactive Visualization]
+graph TD
+    subgraph Frontend [React + D3.js]
+        UI[User Interface] -->|GitHub URL| API_REQ[API Request]
+        API_REQ -->|fetch| DATA_RECV[JSON Node/Edge Data]
+        DATA_RECV -->|D3 Force| VIZ[Interactive Visualization]
+    end
+
+    subgraph Backend [FastAPI]
+        API_REQ -.-> ROUTE[Analysis Endpoint]
+        ROUTE --> CLONE[Git Shallow Clone]
+        CLONE --> PARSE[AST Dependency Parsing]
+        PARSE --> METRICS[Radon Complexity Analysis]
+        METRICS --> GRAPH[NetworkX Graph Generation]
+        GRAPH --> JSON[JSON Serializer]
+        JSON -.-> DATA_RECV
+    end
+
+    style Frontend fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Backend fill:#1e293b,stroke:#8b5cf6,stroke-width:2px,color:#fff
 ```
 
-1.  **Clone**: The backend performs a shallow clone of the target repository.
-2.  **Analyze**: Python's `ast` module parses imports, while `Radon` calculates complexity metrics.
-3.  **Graphing**: Relationships are mapped into a JSON structure compatible with D3.js.
-4.  **Visualize**: The frontend renders a force simulation where every node is interactive.
+1.  **Clone**: The backend performs a shallow clone (`depth=1`) of the target repository to minimize disk usage and speed up analysis.
+2.  **Analyze**: Python's `ast` module parses imports to build the network, while `Radon` calculates cyclomatic complexity for every file.
+3.  **Graphing**: Relationships are processed via `NetworkX` to ensure integrity and exported as a specialized JSON structure.
+4.  **Visualize**: The frontend uses a custom **D3.js Force Simulation** centered on stability and elegant animations to render the data.
 
 ## 🛠️ Tech Stack
 
