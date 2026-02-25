@@ -95,6 +95,7 @@ graph TD
     style Backend fill:#1e293b,stroke:#8b5cf6,stroke-width:2px,color:#fff
 ```
 
+
 1.  **Clone**: The backend performs a shallow clone (`depth=1`) of the target repository to minimize disk usage and speed up analysis.
 2.  **Analyze**: Python's `ast` module parses imports to build the network, while `Radon` calculates cyclomatic complexity for every file.
 3.  **Graphing**: Relationships are processed via `NetworkX` to ensure integrity and exported as a specialized JSON structure.
