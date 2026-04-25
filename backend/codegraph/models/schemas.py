@@ -22,6 +22,8 @@ class NodeData(BaseModel):
     language: str = Field(..., description="Programming language")
     imports: List[str] = Field(default_factory=list, description="List of imported modules")
     size: int = Field(..., description="Node size for visualization")
+    symbols: Dict = Field(default_factory=dict, description="Parsed classes and functions")
+    function_details: List[Dict] = Field(default_factory=list, description="Function complexity details")
 
 
 class EdgeData(BaseModel):

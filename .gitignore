@@ -48,3 +48,6 @@ logs/
 
 # Project Summary
 PROJECT_SUMMARY.md
+
+# CodeGraph Artifacts
+.agents/

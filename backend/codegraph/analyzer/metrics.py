@@ -29,7 +29,8 @@ class MetricsAnalyzer:
             'blank': 0,
             'complexity': 0,
             'functions': 0,
-            'classes': 0
+            'classes': 0,
+            'function_details': []
         }
         
         try:
@@ -54,8 +55,18 @@ class MetricsAnalyzer:
                     letter = getattr(item, 'letter', None)
                     if letter == 'C':
                         metrics['classes'] += 1
+                        metrics['function_details'].append({
+                            'name': item.name,
+                            'type': 'class',
+                            'complexity': item.complexity
+                        })
                     elif letter in ('F', 'M'):
                         metrics['functions'] += 1
+                        metrics['function_details'].append({
+                            'name': item.name,
+                            'type': 'function' if letter == 'F' else 'method',
+                            'complexity': item.complexity
+                        })
             
         except Exception as e:
             import traceback

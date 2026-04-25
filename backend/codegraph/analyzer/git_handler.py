@@ -44,13 +44,14 @@ class GitHandler:
             self.cleanup()
             raise ValueError(f"Failed to clone repository: {str(e)}")
     
-    def get_python_files(self, max_files: int = 100, include_tests: bool = False) -> List[Path]:
+    def get_python_files(self, max_files: int = 100, include_tests: bool = False, pattern: str = "*.py") -> List[Path]:
         """
-        Get all Python files from the repository
+        Get all Python files from the repository matching a pattern
         
         Args:
             max_files: Maximum number of files to return
             include_tests: Whether to include test files
+            pattern: Glob pattern to match files
             
         Returns:
             List of Python file paths
@@ -75,7 +76,7 @@ class GitHandler:
         if not include_tests:
             exclude_patterns.extend(['test_', 'tests/', 'test/'])
         
-        for py_file in self.temp_dir.rglob("*.py"):
+        for py_file in self.temp_dir.rglob(pattern):
             # Skip excluded patterns
             if any(pattern in str(py_file) for pattern in exclude_patterns):
                 continue

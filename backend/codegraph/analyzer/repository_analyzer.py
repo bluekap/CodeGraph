@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 from collections import defaultdict
 
-from app.analyzer.git_handler import GitHandler
-from app.analyzer.dependency_parser import DependencyParser
-from app.analyzer.metrics import MetricsAnalyzer
-from app.models.schemas import NodeData, EdgeData, RepositoryMetrics
+from codegraph.analyzer.git_handler import GitHandler
+from codegraph.analyzer.dependency_parser import DependencyParser
+from codegraph.analyzer.metrics import MetricsAnalyzer
+from codegraph.models.schemas import NodeData, EdgeData, RepositoryMetrics
 
 
 class RepositoryAnalyzer:
@@ -23,7 +23,8 @@ class RepositoryAnalyzer:
         self,
         repo_url: str,
         max_files: int = 100,
-        include_tests: bool = False
+        include_tests: bool = False,
+        file_pattern: str = "*.py"
     ) -> Tuple[List[NodeData], List[EdgeData], RepositoryMetrics]:
         """
         Analyze a GitHub repository and return graph data
@@ -32,6 +33,7 @@ class RepositoryAnalyzer:
             repo_url: GitHub repository URL
             max_files: Maximum files to analyze
             include_tests: Include test files
+            file_pattern: Glob pattern for files to analyze
             
         Returns:
             Tuple of (nodes, edges, metrics)
@@ -41,7 +43,7 @@ class RepositoryAnalyzer:
             repo_path = self.git_handler.clone_repository(repo_url)
             
             # Get Python files
-            python_files = self.git_handler.get_python_files(max_files, include_tests)
+            python_files = self.git_handler.get_python_files(max_files, include_tests, file_pattern)
             
             if not python_files:
                 raise ValueError("No Python files found in repository")
@@ -68,8 +70,9 @@ class RepositoryAnalyzer:
                 metrics = self.metrics_analyzer.analyze_file(py_file, content)
                 all_metrics.append(metrics)
                 
-                # Parse imports
+                # Parse imports and symbols
                 imports = self.dep_parser.parse_imports(py_file, content)
+                symbols = self.dep_parser.parse_symbols(py_file, content)
                 
                 # Resolve local imports
                 local_imports = self.dep_parser.resolve_local_imports(
@@ -89,7 +92,9 @@ class RepositoryAnalyzer:
                     complexity=round(metrics['complexity'], 2),
                     language=language,
                     imports=imports,
-                    size=self.metrics_analyzer.calculate_node_size(metrics['loc'])
+                    size=self.metrics_analyzer.calculate_node_size(metrics['loc']),
+                    symbols=symbols,
+                    function_details=metrics.get('function_details', [])
                 )
                 nodes_data.append(node)
                 

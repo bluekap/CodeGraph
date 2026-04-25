@@ -48,6 +48,52 @@ class DependencyParser:
         
         return list(imports)
     
+    def parse_symbols(self, file_path: Path, content: str) -> Dict[str, List[Dict]]:
+        """
+        Extract classes and functions with their docstrings and signatures.
+        
+        Args:
+            file_path: Path to the Python file
+            content: File content as string
+            
+        Returns:
+            Dict containing lists of 'classes' and 'functions'
+        """
+        symbols = {'classes': [], 'functions': []}
+        
+        try:
+            tree = ast.parse(content)
+            
+            for node in tree.body:
+                if isinstance(node, ast.ClassDef):
+                    methods = []
+                    for child in node.body:
+                        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                            methods.append({
+                                'name': child.name,
+                                'docstring': ast.get_docstring(child) or "",
+                                'args': [arg.arg for arg in child.args.args]
+                            })
+                    
+                    symbols['classes'].append({
+                        'name': node.name,
+                        'docstring': ast.get_docstring(node) or "",
+                        'methods': methods
+                    })
+                elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    symbols['functions'].append({
+                        'name': node.name,
+                        'docstring': ast.get_docstring(node) or "",
+                        'args': [arg.arg for arg in node.args.args]
+                    })
+        
+        except SyntaxError:
+            pass
+        except Exception as e:
+            print(f"Error parsing symbols {file_path}: {e}")
+            
+        return symbols
+    
     def resolve_local_imports(
         self,
         file_path: str,
