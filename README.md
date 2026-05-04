@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Transform your codebases into meaningful artifacts for AI Agents.</strong>
+  <strong>Transform your codebase into structured, readable memory for AI Agents.</strong>
 </p>
 
 <p align="center">
@@ -17,109 +17,132 @@
 
 ---
 
-## 🎯 What is CodeGraph?
+## 🎯 The Problem
 
-**CodeGraph** is a specialized analysis engine designed to help AI Agents (and humans) understand complex codebases at scale. By performing deep AST parsing and metric analysis, it generates structured Markdown artifacts that fit perfectly into an LLM's context window.
+When you ask an AI Agent to "fix a bug" or "refactor a feature" in a large repository, it struggles. LLMs have limited context windows and cannot easily "browse" thousands of files to understand how your project is wired together or where the technical debt lies.
 
-Whether you're building a coding assistant or automating documentation, CodeGraph makes the "hidden anatomy" of your project digestible for machines.
+## 💡 The Solution: CodeGraph
 
-## ✨ Key Features
+**CodeGraph** is a headless analysis engine that runs locally on your machine. It parses backend and frontend source files (Python, JavaScript, TypeScript, React, Vue, Svelte) and calculates complexity metrics, then condenses that knowledge into highly structured **Markdown artifacts**. 
 
-- 🤖 **AI Agent Ready** – Generates structured `.md` files designed for LLM consumption.
-- 📂 **Standardized Context** – Outputs all artifacts to a `.agents/` folder for easy agent discovery.
-- 📊 **Granular Metrics** – Tracks **Cyclomatic Complexity** at the file AND function level.
-- 📦 **Symbol Extraction** – Automatically extracts class definitions, function signatures, and docstrings.
-- ⚡ **Git-Hash Caching** – Tracks your current commit hash to ensure artifacts are never stale.
-- 🛠️ **CLI-First** – Powerful headless mode for automation and CI/CD pipelines.
+These artifacts are placed in a `.agents/codegraph/` folder. When an AI Agent reads this folder, it instantly gains a "Senior Developer's" understanding of your architecture, module exports, and complexity hotspots—without needing to read your entire source code.
 
-## 🚀 Quick Start
+---
 
-### 📋 Prerequisites
-- **Python 3.10+**
-- **Git**
+## ✨ What It Generates
 
-### 🛠️ Installation
+Running CodeGraph produces the following files in your repository's `.agents/codegraph/` directory:
 
-1. **Clone the repo:**
+1. **`architecture.md`**: Contains a high-level summary and a **Mermaid.js dependency graph** showing how your files import each other.
+2. **`modules.md`**: A dictionary of your codebase. It lists every class, method, and function along with its exact signature and docstring.
+3. **`hotspots.md`**: A ranked list highlighting the most complex files and functions (calculated via Cyclomatic Complexity). *Perfect for telling an Agent: "Find and refactor the most complex function in the repo."*
+4. **`cache.json`**: A git-aware cache. CodeGraph tracks your `git commit` hash to ensure it only regenerates artifacts if your code has actually changed.
+
+---
+
+## 🚀 Installation & Setup
+
+### Prerequisites
+- Python 3.10+
+- Git
+
+### Installation Steps
+
+Currently, the engine lives in the `backend/` directory of this repository.
+
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/bluekap/codegraph.git
    cd codegraph/backend
    ```
-2. **Setup and Install:**
+2. **Create a Virtual Environment:**
    ```bash
    python -m venv venv
-   source venv/bin/activate  # Windows: venv\Scripts\activate
-   pip install -e .          # Installs 'codegraph' command globally in your venv
+   source venv/bin/activate  # On Windows use: venv\Scripts\activate
    ```
+3. **Install the CLI Globally (Editable Mode):**
+   ```bash
+   pip install -e .
+   ```
+   *This installs the `codegraph` command so you can use it in any folder while your virtual environment is active.*
 
-## 💻 Usage
+---
 
-Once installed, you can use the `codegraph` command directly.
+## 💻 CLI Usage
 
-### 🔍 Analyze a Repository
-Analyze the current directory and generate artifacts in `.agents/codegraph/`:
+Once installed, you can use the `codegraph` command to analyze any local repository.
+
+### 🔍 1. Basic Analysis (Most Common)
+Navigate to any backend or full-stack project on your computer and run:
 ```bash
 codegraph analyze .
 ```
+*This will create the `.agents/codegraph/` folder and populate it with Markdown artifacts.*
 
-### 🎯 Analyze Specific Files
-Filter analysis to specific modules:
+### 🎯 2. Targeted Analysis
+If you only want to analyze specific folders (like `src` and `ui`):
 ```bash
-codegraph analyze . --files "src/**/*.py"
+codegraph analyze . --files "src/**/*"
 ```
 
-### 🔄 Force Regeneration
-Skip the cache and re-analyze everything:
+### 🔄 3. Force Regeneration
+If you want to skip the git-hash cache and force CodeGraph to parse everything again:
 ```bash
 codegraph analyze . --force
 ```
 
-### 📤 Export Data
-Export analysis to a specific format (stdout or file):
+### 📁 4. Custom Output Directory
+If you want to write artifacts and cache somewhere else:
 ```bash
-codegraph export . --format mermaid --out graph.mmd
+codegraph analyze . --output-dir ".agents/fullstack-memory"
 ```
+You can pass either a relative path (resolved from repo root) or an absolute path.
 
-### 🧪 Validate Cache
-Check if your existing artifacts match the current git commit:
+### 🧪 5. Validate Cache Status
+Quickly check if the artifacts in `.agents/codegraph/` are up-to-date with your latest git commit:
 ```bash
 codegraph validate .
 ```
 
+### 📤 6. Export Data
+If you want to export the raw data to `stdout` or a specific file format (JSON, Markdown, or Mermaid) without writing to the `.agents/` directory:
+```bash
+codegraph export . --format mermaid --out graph.mmd
+```
+
 > [!TIP]
-> If the `codegraph` command fails due to spaces in your file path (e.g., `bad interpreter`), you can always run the tool reliably using:
+> **Path Issues?** If the `codegraph` command fails with a "bad interpreter" error (common if your folder paths contain spaces), use the module command instead:
 > ```bash
 > python -m codegraph analyze .
 > ```
 
 ---
 
-## 📁 Generated Artifacts
+## 🤖 Using CodeGraph with AI Agents
 
-When you run `analyze`, an `.agents/codegraph/` folder is created at your repo root containing:
+If you are building your own AI Agent (e.g., using LangChain, AutoGen, or CrewAI), you can give your Agent direct access to CodeGraph's query tools.
 
-- **`architecture.md`**: High-level repository stats and a **Mermaid.js** dependency graph.
-- **`modules.md`**: A complete breakdown of classes and functions with their docstrings.
-- **`hotspots.md`**: Ranked lists of the most complex files and functions for targeted refactoring.
-- **`cache.json`**: Stores the git hash and raw analysis data for instant reloading.
-
-## 🤖 Agent Integration
-
-CodeGraph provides a dedicated module for AI Agent frameworks (like LangChain):
+We provide pre-built `@tool` wrappers that read the generated `.agents/` artifacts safely.
 
 ```python
-from codegraph.agent_tools import get_repository_architecture, get_module_details
+from codegraph.agent_tools import (
+    get_repository_architecture, 
+    get_module_details, 
+    get_complexity_hotspots
+)
 
-# Give these tools to your Agent!
+# Give these tools to your LangChain/OpenAI Agent
 tools = [
     get_repository_architecture,
-    get_module_details
+    get_module_details,
+    get_complexity_hotspots
 ]
 ```
+*Now, if you ask your Agent "What does this repo do?", it will automatically call `get_repository_architecture` and read the Mermaid diagram!*
 
 ---
 
-## 🏗️ How It Works
+## 🏗️ Internal Architecture
 
 ```mermaid
 graph TD
@@ -134,14 +157,11 @@ graph TD
 
 ---
 
-## 📜 License
+## 📜 License & Contact
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
-## 📧 Contact
-
-**bluekap** - [@bluekap](https://github.com/bluekap) - vabg96@yahoo.com
-
+**bluekap** - [@bluekap](https://github.com/bluekap) - vabg96@yahoo.com  
 **Project Link**: [https://github.com/bluekap/codegraph](https://github.com/bluekap/codegraph)
 
 ---

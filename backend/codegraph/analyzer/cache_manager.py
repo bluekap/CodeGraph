@@ -1,15 +1,17 @@
 import os
 import json
 import subprocess
+import hashlib
 from pathlib import Path
 from typing import Dict, Optional
 
 class CacheManager:
     """Manages the .agents cache and artifact storage"""
+    CACHE_SCHEMA_VERSION = "2"
     
-    def __init__(self, repo_path: str):
+    def __init__(self, repo_path: str, output_dir: Optional[str] = None):
         self.repo_path = Path(repo_path)
-        self.agents_dir = self.repo_path / ".agents" / "codegraph"
+        self.agents_dir = Path(output_dir) if output_dir else self.repo_path / ".agents" / "codegraph"
         self.cache_file = self.agents_dir / "cache.json"
         
         # Create directory if it doesn't exist
@@ -28,20 +30,40 @@ class CacheManager:
             return result.stdout.strip()
         except (subprocess.CalledProcessError, FileNotFoundError):
             return None
+
+    def get_working_tree_fingerprint(self) -> Optional[str]:
+        """Fingerprint uncommitted changes so cache can be invalidated before commit."""
+        try:
+            result = subprocess.run(
+                ["git", "status", "--porcelain"],
+                cwd=self.repo_path,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            status_output = result.stdout
+            return hashlib.sha256(status_output.encode("utf-8")).hexdigest()
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return None
             
     def is_cache_valid(self) -> bool:
-        """Check if the cache matches the current commit hash"""
+        """Check if cache matches commit, worktree state, and schema version."""
         if not self.cache_file.exists():
             return False
             
         current_hash = self.get_current_commit_hash()
+        current_tree = self.get_working_tree_fingerprint()
         if not current_hash:
             return False
             
         try:
             with open(self.cache_file, "r") as f:
                 data = json.load(f)
-                return data.get("commit_hash") == current_hash
+                return (
+                    data.get("schema_version") == self.CACHE_SCHEMA_VERSION
+                    and data.get("commit_hash") == current_hash
+                    and data.get("working_tree_fingerprint") == current_tree
+                )
         except (json.JSONDecodeError, IOError):
             return False
             
@@ -59,9 +81,12 @@ class CacheManager:
     def save_cache(self, data: Dict):
         """Save analysis data to cache with the current commit hash"""
         current_hash = self.get_current_commit_hash()
+        current_tree = self.get_working_tree_fingerprint()
         
         cache_data = {
+            "schema_version": self.CACHE_SCHEMA_VERSION,
             "commit_hash": current_hash,
+            "working_tree_fingerprint": current_tree,
             "data": data
         }
         

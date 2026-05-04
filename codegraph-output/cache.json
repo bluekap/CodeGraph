@@ -1,0 +1,956 @@
+{
+  "schema_version": "2",
+  "commit_hash": "8541e74415fc826511e4b12b0f3291743f2b94c7",
+  "working_tree_fingerprint": "7b1fdc0237b8da99da323ce6098e3e3edaf1c7dc8203750446670ca728291e93",
+  "data": {
+    "nodes": [
+      {
+        "id": "backend/setup.py",
+        "name": "setup.py",
+        "path": "backend/setup.py",
+        "loc": 18,
+        "complexity": 0.0,
+        "language": "python",
+        "imports": [
+          "setuptools"
+        ],
+        "size": 24,
+        "symbols": {
+          "classes": [],
+          "functions": []
+        },
+        "function_details": []
+      },
+      {
+        "id": "backend/codegraph/__main__.py",
+        "name": "__main__.py",
+        "path": "backend/codegraph/__main__.py",
+        "loc": 142,
+        "complexity": 8.67,
+        "language": "python",
+        "imports": [
+          "argparse",
+          "json",
+          "pathlib",
+          "sys",
+          "codegraph.analyzer.cache_manager",
+          "codegraph.analyzer.artifact_generator",
+          "codegraph.analyzer.repository_analyzer",
+          "traceback",
+          "asyncio"
+        ],
+        "size": 34,
+        "symbols": {
+          "classes": [],
+          "functions": [
+            {
+              "name": "analyze_repo",
+              "docstring": "Analyze the repository, use cache if available and not forced",
+              "args": [
+                "repo_path",
+                "force",
+                "max_files",
+                "file_pattern"
+              ]
+            },
+            {
+              "name": "export_repo",
+              "docstring": "Export the analysis data in a specific format",
+              "args": [
+                "repo_path",
+                "format_type",
+                "out_path"
+              ]
+            },
+            {
+              "name": "main",
+              "docstring": "",
+              "args": []
+            }
+          ]
+        },
+        "function_details": [
+          {
+            "name": "analyze_repo",
+            "type": "function",
+            "complexity": 10
+          },
+          {
+            "name": "export_repo",
+            "type": "function",
+            "complexity": 10
+          },
+          {
+            "name": "main",
+            "type": "function",
+            "complexity": 6
+          }
+        ]
+      },
+      {
+        "id": "backend/codegraph/agent_tools.py",
+        "name": "agent_tools.py",
+        "path": "backend/codegraph/agent_tools.py",
+        "loc": 42,
+        "complexity": 1.75,
+        "language": "python",
+        "imports": [
+          "typing",
+          "langchain_core.tools",
+          "pathlib"
+        ],
+        "size": 28,
+        "symbols": {
+          "classes": [],
+          "functions": [
+            {
+              "name": "get_repository_architecture",
+              "docstring": "Returns the high-level architecture overview and mermaid diagram of the repository.\nUseful for understanding the repository's structure at a glance.",
+              "args": [
+                "path"
+              ]
+            },
+            {
+              "name": "get_module_details",
+              "docstring": "Returns a breakdown of the functions, classes, and their docstrings in the repository.\nUseful for finding specific functions or understanding what a module exports.",
+              "args": [
+                "path"
+              ]
+            },
+            {
+              "name": "get_complexity_hotspots",
+              "docstring": "Returns the list of the most complex files and functions in the repository.\nUseful for finding technical debt or areas that might be difficult to debug.",
+              "args": [
+                "path"
+              ]
+            }
+          ]
+        },
+        "function_details": [
+          {
+            "name": "tool",
+            "type": "function",
+            "complexity": 1
+          },
+          {
+            "name": "get_repository_architecture",
+            "type": "function",
+            "complexity": 2
+          },
+          {
+            "name": "get_module_details",
+            "type": "function",
+            "complexity": 2
+          },
+          {
+            "name": "get_complexity_hotspots",
+            "type": "function",
+            "complexity": 2
+          }
+        ]
+      },
+      {
+        "id": "backend/codegraph/models/schemas.py",
+        "name": "schemas.py",
+        "path": "backend/codegraph/models/schemas.py",
+        "loc": 58,
+        "complexity": 1.0,
+        "language": "python",
+        "imports": [
+          "typing",
+          "pydantic"
+        ],
+        "size": 30,
+        "symbols": {
+          "classes": [
+            {
+              "name": "AnalyzeRequest",
+              "docstring": "Request model for repository analysis",
+              "methods": []
+            },
+            {
+              "name": "NodeData",
+              "docstring": "Graph node representing a file/module",
+              "methods": []
+            },
+            {
+              "name": "EdgeData",
+              "docstring": "Graph edge representing a dependency",
+              "methods": []
+            },
+            {
+              "name": "RepositoryMetrics",
+              "docstring": "Overall repository metrics",
+              "methods": []
+            },
+            {
+              "name": "AnalyzeResponse",
+              "docstring": "Response model with graph data",
+              "methods": []
+            },
+            {
+              "name": "ErrorResponse",
+              "docstring": "Error response model",
+              "methods": []
+            }
+          ],
+          "functions": []
+        },
+        "function_details": [
+          {
+            "name": "AnalyzeRequest",
+            "type": "class",
+            "complexity": 1
+          },
+          {
+            "name": "NodeData",
+            "type": "class",
+            "complexity": 1
+          },
+          {
+            "name": "EdgeData",
+            "type": "class",
+            "complexity": 1
+          },
+          {
+            "name": "RepositoryMetrics",
+            "type": "class",
+            "complexity": 1
+          },
+          {
+            "name": "AnalyzeResponse",
+            "type": "class",
+            "complexity": 1
+          },
+          {
+            "name": "ErrorResponse",
+            "type": "class",
+            "complexity": 1
+          }
+        ]
+      },
+      {
+        "id": "backend/codegraph/analyzer/metrics.py",
+        "name": "metrics.py",
+        "path": "backend/codegraph/analyzer/metrics.py",
+        "loc": 177,
+        "complexity": 5.17,
+        "language": "python",
+        "imports": [
+          "math",
+          "typing",
+          "pathlib",
+          "radon.raw",
+          "traceback",
+          "radon.complexity"
+        ],
+        "size": 35,
+        "symbols": {
+          "classes": [
+            {
+              "name": "MetricsAnalyzer",
+              "docstring": "Analyze code metrics for Python files",
+              "methods": [
+                {
+                  "name": "analyze_file",
+                  "docstring": "Analyze a Python file for various metrics\n\nArgs:\n    file_path: Path to the file\n    content: File content as string\n    \nReturns:\n    Dict containing metrics",
+                  "args": [
+                    "self",
+                    "file_path",
+                    "content"
+                  ]
+                },
+                {
+                  "name": "calculate_complexity_color",
+                  "docstring": "Get color code based on complexity score\n\nArgs:\n    complexity: Cyclomatic complexity value\n    \nReturns:\n    Color string for visualization",
+                  "args": [
+                    "self",
+                    "complexity"
+                  ]
+                },
+                {
+                  "name": "calculate_node_size",
+                  "docstring": "Calculate node size for visualization based on LOC\n\nArgs:\n    loc: Lines of code\n    min_size: Minimum node size\n    max_size: Maximum node size\n    \nReturns:\n    Node size value",
+                  "args": [
+                    "self",
+                    "loc",
+                    "min_size",
+                    "max_size"
+                  ]
+                },
+                {
+                  "name": "get_file_language",
+                  "docstring": "Determine programming language from file extension\n\nArgs:\n    file_path: Path to file\n    \nReturns:\n    Language name",
+                  "args": [
+                    "self",
+                    "file_path"
+                  ]
+                },
+                {
+                  "name": "calculate_repository_stats",
+                  "docstring": "Calculate aggregate statistics for the repository\n\nArgs:\n    all_metrics: List of metrics dicts for all files\n    \nReturns:\n    Repository-level statistics",
+                  "args": [
+                    "self",
+                    "all_metrics"
+                  ]
+                }
+              ]
+            }
+          ],
+          "functions": []
+        },
+        "function_details": [
+          {
+            "name": "MetricsAnalyzer",
+            "type": "class",
+            "complexity": 6
+          },
+          {
+            "name": "analyze_file",
+            "type": "method",
+            "complexity": 8
+          },
+          {
+            "name": "calculate_complexity_color",
+            "type": "method",
+            "complexity": 5
+          },
+          {
+            "name": "calculate_node_size",
+            "type": "method",
+            "complexity": 2
+          },
+          {
+            "name": "get_file_language",
+            "type": "method",
+            "complexity": 1
+          },
+          {
+            "name": "calculate_repository_stats",
+            "type": "method",
+            "complexity": 9
+          }
+        ]
+      },
+      {
+        "id": "backend/codegraph/analyzer/cache_manager.py",
+        "name": "cache_manager.py",
+        "path": "backend/codegraph/analyzer/cache_manager.py",
+        "loc": 72,
+        "complexity": 2.5,
+        "language": "python",
+        "imports": [
+          "typing",
+          "os",
+          "json",
+          "pathlib",
+          "subprocess"
+        ],
+        "size": 31,
+        "symbols": {
+          "classes": [
+            {
+              "name": "CacheManager",
+              "docstring": "Manages the .agents cache and artifact storage",
+              "methods": [
+                {
+                  "name": "__init__",
+                  "docstring": "",
+                  "args": [
+                    "self",
+                    "repo_path"
+                  ]
+                },
+                {
+                  "name": "get_current_commit_hash",
+                  "docstring": "Get the current git commit hash of the repository",
+                  "args": [
+                    "self"
+                  ]
+                },
+                {
+                  "name": "is_cache_valid",
+                  "docstring": "Check if the cache matches the current commit hash",
+                  "args": [
+                    "self"
+                  ]
+                },
+                {
+                  "name": "load_cache",
+                  "docstring": "Load the analysis data from cache",
+                  "args": [
+                    "self"
+                  ]
+                },
+                {
+                  "name": "save_cache",
+                  "docstring": "Save analysis data to cache with the current commit hash",
+                  "args": [
+                    "self",
+                    "data"
+                  ]
+                }
+              ]
+            }
+          ],
+          "functions": []
+        },
+        "function_details": [
+          {
+            "name": "CacheManager",
+            "type": "class",
+            "complexity": 3
+          },
+          {
+            "name": "__init__",
+            "type": "method",
+            "complexity": 1
+          },
+          {
+            "name": "get_current_commit_hash",
+            "type": "method",
+            "complexity": 2
+          },
+          {
+            "name": "is_cache_valid",
+            "type": "method",
+            "complexity": 4
+          },
+          {
+            "name": "load_cache",
+            "type": "method",
+            "complexity": 3
+          },
+          {
+            "name": "save_cache",
+            "type": "method",
+            "complexity": 2
+          }
+        ]
+      },
+      {
+        "id": "backend/codegraph/analyzer/git_handler.py",
+        "name": "git_handler.py",
+        "path": "backend/codegraph/analyzer/git_handler.py",
+        "loc": 180,
+        "complexity": 2.7,
+        "language": "python",
+        "imports": [
+          "typing",
+          "stat",
+          "os",
+          "pathlib",
+          "git",
+          "tempfile",
+          "shutil"
+        ],
+        "size": 35,
+        "symbols": {
+          "classes": [
+            {
+              "name": "GitHandler",
+              "docstring": "Handle Git repository operations",
+              "methods": [
+                {
+                  "name": "__init__",
+                  "docstring": "",
+                  "args": [
+                    "self"
+                  ]
+                },
+                {
+                  "name": "clone_repository",
+                  "docstring": "Clone a GitHub repository to a temporary directory\n\nArgs:\n    repo_url: GitHub repository URL\n    \nReturns:\n    Path to cloned repository\n    \nRaises:\n    ValueError: If repo_url is invalid\n    GitCommandError: If cloning fails",
+                  "args": [
+                    "self",
+                    "repo_url"
+                  ]
+                },
+                {
+                  "name": "get_python_files",
+                  "docstring": "Get all Python files from the repository matching a pattern\n\nArgs:\n    max_files: Maximum number of files to return\n    include_tests: Whether to include test files\n    pattern: Glob pattern to match files\n    \nReturns:\n    List of Python file paths",
+                  "args": [
+                    "self",
+                    "max_files",
+                    "include_tests",
+                    "pattern"
+                  ]
+                },
+                {
+                  "name": "get_file_content",
+                  "docstring": "Read file content safely\n\nArgs:\n    file_path: Path to file\n    \nReturns:\n    File content as string",
+                  "args": [
+                    "self",
+                    "file_path"
+                  ]
+                },
+                {
+                  "name": "get_relative_path",
+                  "docstring": "Get relative path from repository root\n\nArgs:\n    file_path: Absolute file path\n    \nReturns:\n    Relative path string",
+                  "args": [
+                    "self",
+                    "file_path"
+                  ]
+                },
+                {
+                  "name": "get_repo_name",
+                  "docstring": "Extract repository name from URL\n\nArgs:\n    repo_url: GitHub repository URL\n    \nReturns:\n    Repository name (e.g., 'flask' from 'https://github.com/pallets/flask')",
+                  "args": [
+                    "self",
+                    "repo_url"
+                  ]
+                },
+                {
+                  "name": "cleanup",
+                  "docstring": "Clean up temporary directory",
+                  "args": [
+                    "self"
+                  ]
+                },
+                {
+                  "name": "__enter__",
+                  "docstring": "Context manager entry",
+                  "args": [
+                    "self"
+                  ]
+                },
+                {
+                  "name": "__exit__",
+                  "docstring": "Context manager exit with cleanup",
+                  "args": [
+                    "self",
+                    "exc_type",
+                    "exc_val",
+                    "exc_tb"
+                  ]
+                }
+              ]
+            }
+          ],
+          "functions": []
+        },
+        "function_details": [
+          {
+            "name": "GitHandler",
+            "type": "class",
+            "complexity": 3
+          },
+          {
+            "name": "__init__",
+            "type": "method",
+            "complexity": 1
+          },
+          {
+            "name": "clone_repository",
+            "type": "method",
+            "complexity": 2
+          },
+          {
+            "name": "get_python_files",
+            "type": "method",
+            "complexity": 8
+          },
+          {
+            "name": "get_file_content",
+            "type": "method",
+            "complexity": 3
+          },
+          {
+            "name": "get_relative_path",
+            "type": "method",
+            "complexity": 3
+          },
+          {
+            "name": "get_repo_name",
+            "type": "method",
+            "complexity": 1
+          },
+          {
+            "name": "cleanup",
+            "type": "method",
+            "complexity": 4
+          },
+          {
+            "name": "__enter__",
+            "type": "method",
+            "complexity": 1
+          },
+          {
+            "name": "__exit__",
+            "type": "method",
+            "complexity": 1
+          }
+        ]
+      },
+      {
+        "id": "backend/codegraph/analyzer/artifact_generator.py",
+        "name": "artifact_generator.py",
+        "path": "backend/codegraph/analyzer/artifact_generator.py",
+        "loc": 144,
+        "complexity": 5.17,
+        "language": "python",
+        "imports": [
+          "os",
+          "typing",
+          "pathlib"
+        ],
+        "size": 34,
+        "symbols": {
+          "classes": [
+            {
+              "name": "ArtifactGenerator",
+              "docstring": "Generates markdown artifacts from analysis data",
+              "methods": [
+                {
+                  "name": "__init__",
+                  "docstring": "",
+                  "args": [
+                    "self",
+                    "codegraph_dir"
+                  ]
+                },
+                {
+                  "name": "generate_all",
+                  "docstring": "Generate all artifacts based on the analysis data",
+                  "args": [
+                    "self",
+                    "analysis_data"
+                  ]
+                },
+                {
+                  "name": "generate_architecture",
+                  "docstring": "Generate architecture.md with Mermaid diagram",
+                  "args": [
+                    "self",
+                    "data"
+                  ]
+                },
+                {
+                  "name": "generate_modules",
+                  "docstring": "Generate modules.md detailing classes and functions per file",
+                  "args": [
+                    "self",
+                    "data"
+                  ]
+                },
+                {
+                  "name": "generate_hotspots",
+                  "docstring": "Generate hotspots.md highlighting highly complex files and functions",
+                  "args": [
+                    "self",
+                    "data"
+                  ]
+                }
+              ]
+            }
+          ],
+          "functions": []
+        },
+        "function_details": [
+          {
+            "name": "ArtifactGenerator",
+            "type": "class",
+            "complexity": 6
+          },
+          {
+            "name": "__init__",
+            "type": "method",
+            "complexity": 1
+          },
+          {
+            "name": "generate_all",
+            "type": "method",
+            "complexity": 1
+          },
+          {
+            "name": "generate_architecture",
+            "type": "method",
+            "complexity": 4
+          },
+          {
+            "name": "generate_modules",
+            "type": "method",
+            "complexity": 11
+          },
+          {
+            "name": "generate_hotspots",
+            "type": "method",
+            "complexity": 8
+          }
+        ]
+      },
+      {
+        "id": "backend/codegraph/analyzer/repository_analyzer.py",
+        "name": "repository_analyzer.py",
+        "path": "backend/codegraph/analyzer/repository_analyzer.py",
+        "loc": 147,
+        "complexity": 3.0,
+        "language": "python",
+        "imports": [
+          "collections",
+          "typing",
+          "codegraph.analyzer.metrics",
+          "pathlib",
+          "codegraph.analyzer.git_handler",
+          "codegraph.models.schemas",
+          "codegraph.analyzer.dependency_parser"
+        ],
+        "size": 34,
+        "symbols": {
+          "classes": [
+            {
+              "name": "RepositoryAnalyzer",
+              "docstring": "Main analyzer that orchestrates repository analysis",
+              "methods": [
+                {
+                  "name": "__init__",
+                  "docstring": "",
+                  "args": [
+                    "self"
+                  ]
+                },
+                {
+                  "name": "analyze_repository",
+                  "docstring": "Analyze a GitHub repository and return graph data\n\nArgs:\n    repo_url: GitHub repository URL\n    max_files: Maximum files to analyze\n    include_tests: Include test files\n    file_pattern: Glob pattern for files to analyze\n    \nReturns:\n    Tuple of (nodes, edges, metrics)",
+                  "args": [
+                    "self",
+                    "repo_url",
+                    "max_files",
+                    "include_tests",
+                    "file_pattern"
+                  ]
+                },
+                {
+                  "name": "__enter__",
+                  "docstring": "Context manager entry",
+                  "args": [
+                    "self"
+                  ]
+                },
+                {
+                  "name": "__exit__",
+                  "docstring": "Context manager exit with cleanup",
+                  "args": [
+                    "self",
+                    "exc_type",
+                    "exc_val",
+                    "exc_tb"
+                  ]
+                }
+              ]
+            }
+          ],
+          "functions": []
+        },
+        "function_details": [
+          {
+            "name": "RepositoryAnalyzer",
+            "type": "class",
+            "complexity": 4
+          },
+          {
+            "name": "__init__",
+            "type": "method",
+            "complexity": 1
+          },
+          {
+            "name": "analyze_repository",
+            "type": "method",
+            "complexity": 8
+          },
+          {
+            "name": "__enter__",
+            "type": "method",
+            "complexity": 1
+          },
+          {
+            "name": "__exit__",
+            "type": "method",
+            "complexity": 1
+          }
+        ]
+      },
+      {
+        "id": "backend/codegraph/analyzer/dependency_parser.py",
+        "name": "dependency_parser.py",
+        "path": "backend/codegraph/analyzer/dependency_parser.py",
+        "loc": 223,
+        "complexity": 5.38,
+        "language": "python",
+        "imports": [
+          "collections",
+          "ast",
+          "typing",
+          "pathlib"
+        ],
+        "size": 37,
+        "symbols": {
+          "classes": [
+            {
+              "name": "DependencyParser",
+              "docstring": "Parse Python imports and build dependency graph",
+              "methods": [
+                {
+                  "name": "__init__",
+                  "docstring": "",
+                  "args": [
+                    "self"
+                  ]
+                },
+                {
+                  "name": "parse_imports",
+                  "docstring": "Extract all imports from a Python file using AST\n\nArgs:\n    file_path: Path to the Python file\n    content: File content as string\n    \nReturns:\n    List of imported module names",
+                  "args": [
+                    "self",
+                    "file_path",
+                    "content"
+                  ]
+                },
+                {
+                  "name": "parse_symbols",
+                  "docstring": "Extract classes and functions with their docstrings and signatures.\n\nArgs:\n    file_path: Path to the Python file\n    content: File content as string\n    \nReturns:\n    Dict containing lists of 'classes' and 'functions'",
+                  "args": [
+                    "self",
+                    "file_path",
+                    "content"
+                  ]
+                },
+                {
+                  "name": "resolve_local_imports",
+                  "docstring": "Resolve which imports are from local files vs external packages\n\nArgs:\n    file_path: Current file path\n    imports: List of imported modules\n    all_files: Dict mapping file paths to module names\n    \nReturns:\n    List of local file paths that are imported",
+                  "args": [
+                    "self",
+                    "file_path",
+                    "imports",
+                    "all_files"
+                  ]
+                },
+                {
+                  "name": "build_module_map",
+                  "docstring": "Build a mapping of file paths to Python module names\n\nArgs:\n    files: List of Python files\n    repo_root: Repository root directory\n    \nReturns:\n    Dict mapping file paths to module names",
+                  "args": [
+                    "self",
+                    "files",
+                    "repo_root"
+                  ]
+                },
+                {
+                  "name": "calculate_coupling",
+                  "docstring": "Calculate coupling metrics (how many connections each file has)\n\nArgs:\n    edges: List of (source, target) tuples\n    \nReturns:\n    Dict mapping file paths to connection counts",
+                  "args": [
+                    "self",
+                    "edges"
+                  ]
+                },
+                {
+                  "name": "find_circular_dependencies",
+                  "docstring": "Detect circular dependencies in the graph\n\nArgs:\n    edges: List of (source, target) tuples\n    \nReturns:\n    List of circular dependency chains",
+                  "args": [
+                    "self",
+                    "edges"
+                  ]
+                }
+              ]
+            }
+          ],
+          "functions": []
+        },
+        "function_details": [
+          {
+            "name": "DependencyParser",
+            "type": "class",
+            "complexity": 6
+          },
+          {
+            "name": "__init__",
+            "type": "method",
+            "complexity": 1
+          },
+          {
+            "name": "parse_imports",
+            "type": "method",
+            "complexity": 8
+          },
+          {
+            "name": "parse_symbols",
+            "type": "method",
+            "complexity": 13
+          },
+          {
+            "name": "resolve_local_imports",
+            "type": "method",
+            "complexity": 6
+          },
+          {
+            "name": "build_module_map",
+            "type": "method",
+            "complexity": 3
+          },
+          {
+            "name": "calculate_coupling",
+            "type": "method",
+            "complexity": 2
+          },
+          {
+            "name": "find_circular_dependencies",
+            "type": "method",
+            "complexity": 4
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "backend/codegraph/analyzer/repository_analyzer.py",
+        "target": "backend/codegraph/analyzer/metrics.py",
+        "weight": 1
+      },
+      {
+        "source": "backend/codegraph/analyzer/repository_analyzer.py",
+        "target": "backend/codegraph/models/schemas.py",
+        "weight": 1
+      },
+      {
+        "source": "backend/codegraph/analyzer/repository_analyzer.py",
+        "target": "backend/codegraph/analyzer/dependency_parser.py",
+        "weight": 1
+      },
+      {
+        "source": "backend/codegraph/__main__.py",
+        "target": "backend/codegraph/analyzer/repository_analyzer.py",
+        "weight": 1
+      },
+      {
+        "source": "backend/codegraph/__main__.py",
+        "target": "backend/codegraph/analyzer/cache_manager.py",
+        "weight": 1
+      },
+      {
+        "source": "backend/codegraph/analyzer/repository_analyzer.py",
+        "target": "backend/codegraph/analyzer/git_handler.py",
+        "weight": 1
+      },
+      {
+        "source": "backend/codegraph/__main__.py",
+        "target": "backend/codegraph/analyzer/artifact_generator.py",
+        "weight": 1
+      }
+    ],
+    "metrics": {
+      "total_files": 10,
+      "total_loc": 1203,
+      "avg_complexity": 3.93,
+      "max_complexity": 8.67,
+      "languages": {
+        "python": 10
+      },
+      "most_connected": [
+        "backend/codegraph/analyzer/repository_analyzer.py",
+        "backend/codegraph/__main__.py",
+        "backend/codegraph/analyzer/metrics.py",
+        "backend/codegraph/models/schemas.py",
+        "backend/codegraph/analyzer/dependency_parser.py"
+      ]
+    }
+  }
+}

@@ -9,6 +9,9 @@ from radon.raw import analyze
 
 class MetricsAnalyzer:
     """Analyze code metrics for Python files"""
+
+    PYTHON_EXTENSIONS = {'.py'}
+    JS_TS_EXTENSIONS = {'.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs'}
     
     def analyze_file(self, file_path: Path, content: str) -> Dict:
         """
@@ -34,6 +37,9 @@ class MetricsAnalyzer:
         }
         
         try:
+            if file_path.suffix.lower() not in self.PYTHON_EXTENSIONS:
+                return self._analyze_non_python_file(file_path, content, metrics)
+
             # Get raw metrics (lines of code, comments, etc.)
             raw_metrics = analyze(content)
             metrics['loc'] = raw_metrics.loc
@@ -73,6 +79,30 @@ class MetricsAnalyzer:
             print(f"Error analyzing {file_path}: {e}")
             traceback.print_exc()
         
+        return metrics
+
+    def _analyze_non_python_file(self, file_path: Path, content: str, metrics: Dict) -> Dict:
+        """Fallback metrics for non-Python files (JS/TS/UI and others)."""
+        lines = content.splitlines()
+        metrics['loc'] = len(lines)
+        metrics['blank'] = sum(1 for line in lines if not line.strip())
+
+        comment_prefixes = ('//', '#', '/*', '*')
+        metrics['comments'] = sum(1 for line in lines if line.strip().startswith(comment_prefixes))
+        metrics['sloc'] = max(metrics['loc'] - metrics['blank'] - metrics['comments'], 0)
+
+        suffix = file_path.suffix.lower()
+        if suffix in self.JS_TS_EXTENSIONS:
+            function_tokens = ('function ', '=>', 'export function', 'const ')
+            class_token = 'class '
+            complexity_tokens = ('if ', 'for ', 'while ', 'case ', 'catch ', '&&', '||', '?')
+
+            metrics['functions'] = sum(1 for line in lines if any(tok in line for tok in function_tokens))
+            metrics['classes'] = sum(1 for line in lines if class_token in line)
+            complexity_points = sum(line.count(tok) for line in lines for tok in complexity_tokens)
+            denominator = max(metrics['functions'] + metrics['classes'], 1)
+            metrics['complexity'] = complexity_points / denominator if complexity_points else 0
+
         return metrics
     
     def calculate_complexity_color(self, complexity: float) -> str:
@@ -132,7 +162,14 @@ class MetricsAnalyzer:
         extension_map = {
             '.py': 'python',
             '.js': 'javascript',
+            '.jsx': 'javascript-react',
             '.ts': 'typescript',
+            '.tsx': 'typescript-react',
+            '.vue': 'vue',
+            '.svelte': 'svelte',
+            '.css': 'css',
+            '.scss': 'scss',
+            '.html': 'html',
             '.java': 'java',
             '.go': 'go',
             '.rs': 'rust',

@@ -2,6 +2,7 @@
 Python dependency parser using AST
 """
 import ast
+import re
 from pathlib import Path
 from typing import List, Set, Dict
 from collections import defaultdict
@@ -9,6 +10,8 @@ from collections import defaultdict
 
 class DependencyParser:
     """Parse Python imports and build dependency graph"""
+
+    SOURCE_SUFFIXES = {'.py', '.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.vue', '.svelte'}
     
     def __init__(self):
         self.file_imports: Dict[str, Set[str]] = defaultdict(set)
@@ -25,6 +28,12 @@ class DependencyParser:
             List of imported module names
         """
         imports = set()
+        suffix = file_path.suffix.lower()
+
+        if suffix in {'.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs'}:
+            imports.update(self.JS_IMPORT_RE.findall(content))
+            imports.update(self.JS_REQUIRE_RE.findall(content))
+            return list(imports)
         
         try:
             tree = ast.parse(content)
@@ -33,12 +42,12 @@ class DependencyParser:
                 # Handle 'import module'
                 if isinstance(node, ast.Import):
                     for alias in node.names:
-                        imports.add(alias.name.split('.')[0])
+                        imports.add(alias.name)
                 
                 # Handle 'from module import something'
                 elif isinstance(node, ast.ImportFrom):
                     if node.module:
-                        imports.add(node.module.split('.')[0])
+                        imports.add(node.module)
         
         except SyntaxError:
             # Skip files with syntax errors
@@ -60,6 +69,30 @@ class DependencyParser:
             Dict containing lists of 'classes' and 'functions'
         """
         symbols = {'classes': [], 'functions': []}
+        suffix = file_path.suffix.lower()
+
+        if suffix in {'.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs'}:
+            for class_match in self.JS_CLASS_RE.finditer(content):
+                class_name = class_match.group(1) or class_match.group(2)
+                if class_name:
+                    symbols['classes'].append({
+                        'name': class_name,
+                        'docstring': "",
+                        'methods': []
+                    })
+            for fn_name in self.JS_EXPORT_RE.findall(content):
+                symbols['functions'].append({
+                    'name': fn_name,
+                    'docstring': "",
+                    'args': []
+                })
+            for fn_name in self.JS_FUNCTION_RE.findall(content):
+                symbols['functions'].append({
+                    'name': fn_name,
+                    'docstring': "",
+                    'args': []
+                })
+            return symbols
         
         try:
             tree = ast.parse(content)
@@ -112,21 +145,52 @@ class DependencyParser:
             List of local file paths that are imported
         """
         local_imports = []
-        
-        # Get current file's directory
         current_dir = Path(file_path).parent
+        file_path_index = set(all_files.keys())
+        module_to_path = {module_name: rel_path for rel_path, module_name in all_files.items()}
         
         for imp in imports:
-            # Check if this import matches any local file
+            # Resolve JS/TS-style relative imports: ./foo, ../bar/baz
+            if imp.startswith(("./", "../")):
+                normalized = self._resolve_relative_import(current_dir, imp, file_path_index)
+                if normalized:
+                    local_imports.append(normalized)
+                continue
+
+            # Python/module-style match
+            if imp in module_to_path:
+                local_imports.append(module_to_path[imp])
+                continue
+
+            # Conservative fallback for module names such as package.submodule.
+            # We intentionally avoid broad substring matching to reduce false edges.
             for target_path, module_name in all_files.items():
-                # Check if the module name matches
-                if module_name == imp or module_name.endswith(f".{imp}"):
-                    local_imports.append(target_path)
-                # Check for relative imports
-                elif imp in module_name:
+                if module_name.endswith(f".{imp}"):
                     local_imports.append(target_path)
         
-        return local_imports
+        # Preserve order while removing duplicates
+        return list(dict.fromkeys(local_imports))
+
+    def _resolve_relative_import(self, current_dir: Path, import_path: str, file_path_index: Set[str]) -> str:
+        """Resolve relative import to a known repository file path."""
+        base_path = (current_dir / import_path).as_posix()
+        path_obj = Path(base_path)
+
+        candidates = []
+        if path_obj.suffix:
+            candidates.append(path_obj.as_posix())
+        else:
+            for suffix in self.SOURCE_SUFFIXES:
+                candidates.append(path_obj.with_suffix(suffix).as_posix())
+            for suffix in self.SOURCE_SUFFIXES:
+                candidates.append((path_obj / f"index{suffix}").as_posix())
+
+        for candidate in candidates:
+            normalized = str(Path(candidate))
+            if normalized in file_path_index:
+                return normalized
+
+        return ""
     
     def build_module_map(self, files: List[Path], repo_root: Path) -> Dict[str, str]:
         """
@@ -221,3 +285,8 @@ class DependencyParser:
                 dfs(node)
         
         return cycles
+    JS_IMPORT_RE = re.compile(r'^\s*import\s+(?:.+?\s+from\s+)?[\'"]([^\'"]+)[\'"]', re.MULTILINE)
+    JS_REQUIRE_RE = re.compile(r'require\(\s*[\'"]([^\'"]+)[\'"]\s*\)')
+    JS_EXPORT_RE = re.compile(r'^\s*export\s+(?:default\s+)?(?:async\s+)?function\s+([A-Za-z_]\w*)', re.MULTILINE)
+    JS_CLASS_RE = re.compile(r'^\s*export\s+(?:default\s+)?class\s+([A-Za-z_]\w*)|^\s*class\s+([A-Za-z_]\w*)', re.MULTILINE)
+    JS_FUNCTION_RE = re.compile(r'^\s*(?:export\s+)?(?:const|let|var)\s+([A-Za-z_]\w*)\s*=\s*(?:async\s*)?\(', re.MULTILINE)

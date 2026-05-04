@@ -44,9 +44,9 @@ class GitHandler:
             self.cleanup()
             raise ValueError(f"Failed to clone repository: {str(e)}")
     
-    def get_python_files(self, max_files: int = 100, include_tests: bool = False, pattern: str = "*.py") -> List[Path]:
+    def get_source_files(self, max_files: int = 100, include_tests: bool = False, pattern: str = "*.py") -> List[Path]:
         """
-        Get all Python files from the repository matching a pattern
+        Get source files from the repository matching a glob pattern.
         
         Args:
             max_files: Maximum number of files to return
@@ -54,12 +54,12 @@ class GitHandler:
             pattern: Glob pattern to match files
             
         Returns:
-            List of Python file paths
+            List of source file paths
         """
         if not self.temp_dir:
             raise ValueError("No repository cloned")
         
-        python_files = []
+        source_files = []
         exclude_patterns = [
             '__pycache__',
             '.git',
@@ -76,21 +76,25 @@ class GitHandler:
         if not include_tests:
             exclude_patterns.extend(['test_', 'tests/', 'test/'])
         
-        for py_file in self.temp_dir.rglob(pattern):
+        for source_file in self.temp_dir.rglob(pattern):
             # Skip excluded patterns
-            if any(pattern in str(py_file) for pattern in exclude_patterns):
+            if any(pattern in str(source_file) for pattern in exclude_patterns):
                 continue
             
             # Skip empty files
-            if py_file.stat().st_size == 0:
+            if source_file.stat().st_size == 0:
                 continue
             
-            python_files.append(py_file)
+            source_files.append(source_file)
             
-            if len(python_files) >= max_files:
+            if len(source_files) >= max_files:
                 break
         
-        return python_files
+        return source_files
+
+    def get_python_files(self, max_files: int = 100, include_tests: bool = False, pattern: str = "*.py") -> List[Path]:
+        """Backward-compatible alias for older callers."""
+        return self.get_source_files(max_files=max_files, include_tests=include_tests, pattern=pattern)
     
     def get_file_content(self, file_path: Path) -> str:
         """

@@ -12,7 +12,17 @@ from codegraph.analyzer.repository_analyzer import RepositoryAnalyzer
 from codegraph.analyzer.cache_manager import CacheManager
 from codegraph.analyzer.artifact_generator import ArtifactGenerator
 
-async def analyze_repo(repo_path: str, force: bool = False, max_files: int = 100, file_pattern: str = "*.py"):
+def resolve_output_dir(repo_path_obj: Path, output_dir: str = None) -> Path:
+    """Resolve output directory from optional user input."""
+    if not output_dir:
+        return repo_path_obj / ".agents" / "codegraph"
+    raw_path = Path(output_dir).expanduser()
+    if raw_path.is_absolute():
+        return raw_path
+    return repo_path_obj / raw_path
+
+
+async def analyze_repo(repo_path: str, force: bool = False, max_files: int = 100, file_pattern: str = "*", output_dir: str = None):
     """Analyze the repository, use cache if available and not forced"""
     repo_path_obj = Path(repo_path).resolve()
     
@@ -20,8 +30,9 @@ async def analyze_repo(repo_path: str, force: bool = False, max_files: int = 100
         print(f"Error: Repository path {repo_path} does not exist.")
         sys.exit(1)
         
-    cache_mgr = CacheManager(str(repo_path_obj))
-    generator = ArtifactGenerator(str(repo_path_obj / ".agents" / "codegraph"))
+    resolved_output_dir = resolve_output_dir(repo_path_obj, output_dir)
+    cache_mgr = CacheManager(str(repo_path_obj), output_dir=str(resolved_output_dir))
+    generator = ArtifactGenerator(str(resolved_output_dir))
     
     if not force and cache_mgr.is_cache_valid():
         print("✅ Cache is valid. Loading from cache...")
@@ -112,6 +123,10 @@ def main():
     analyze_parser.add_argument("--force", action="store_true", help="Force regeneration, ignoring cache")
     analyze_parser.add_argument("--files", help="Specific files pattern to analyze (currently unused)")
     analyze_parser.add_argument("--max-files", type=int, default=100, help="Maximum files to analyze")
+    analyze_parser.add_argument(
+        "--output-dir",
+        help="Directory for generated artifacts/cache. Relative paths are resolved from repo root."
+    )
     
     # validate command
     validate_parser = subparsers.add_parser("validate", help="Check if the cache is still valid")
@@ -126,7 +141,7 @@ def main():
     args = parser.parse_args()
     
     if args.command == "analyze":
-        asyncio.run(analyze_repo(args.repo, args.force, args.max_files, args.files or "*.py"))
+        asyncio.run(analyze_repo(args.repo, args.force, args.max_files, args.files or "*", args.output_dir))
     elif args.command == "validate":
         cache_mgr = CacheManager(args.repo)
         if cache_mgr.is_cache_valid():

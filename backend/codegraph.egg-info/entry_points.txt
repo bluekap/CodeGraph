@@ -1,3 +1,2 @@
 [console_scripts]
 codegraph = codegraph.__main__:main
-

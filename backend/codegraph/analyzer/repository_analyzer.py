@@ -24,7 +24,7 @@ class RepositoryAnalyzer:
         repo_url: str,
         max_files: int = 100,
         include_tests: bool = False,
-        file_pattern: str = "*.py"
+        file_pattern: str = "*"
     ) -> Tuple[List[NodeData], List[EdgeData], RepositoryMetrics]:
         """
         Analyze a GitHub repository and return graph data
@@ -42,14 +42,15 @@ class RepositoryAnalyzer:
             # Clone repository
             repo_path = self.git_handler.clone_repository(repo_url)
             
-            # Get Python files
-            python_files = self.git_handler.get_python_files(max_files, include_tests, file_pattern)
+            source_suffixes = {'.py', '.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.vue', '.svelte'}
+            source_files = self.git_handler.get_source_files(max_files, include_tests, file_pattern)
+            source_files = [file for file in source_files if file.suffix.lower() in source_suffixes]
             
-            if not python_files:
-                raise ValueError("No Python files found in repository")
+            if not source_files:
+                raise ValueError("No supported source files found in repository")
             
             # Build module mapping
-            module_map = self.dep_parser.build_module_map(python_files, repo_path)
+            module_map = self.dep_parser.build_module_map(source_files, repo_path)
             
             # Analyze each file
             nodes_data = []
@@ -57,22 +58,22 @@ class RepositoryAnalyzer:
             all_metrics = []
             language_counts = defaultdict(int)
             
-            for py_file in python_files:
+            for source_file in source_files:
                 # Read file content
-                content = self.git_handler.get_file_content(py_file)
+                content = self.git_handler.get_file_content(source_file)
                 if not content:
                     continue
                 
                 # Get relative path
-                rel_path = self.git_handler.get_relative_path(py_file)
+                rel_path = self.git_handler.get_relative_path(source_file)
                 
                 # Analyze metrics
-                metrics = self.metrics_analyzer.analyze_file(py_file, content)
+                metrics = self.metrics_analyzer.analyze_file(source_file, content)
                 all_metrics.append(metrics)
                 
                 # Parse imports and symbols
-                imports = self.dep_parser.parse_imports(py_file, content)
-                symbols = self.dep_parser.parse_symbols(py_file, content)
+                imports = self.dep_parser.parse_imports(source_file, content)
+                symbols = self.dep_parser.parse_symbols(source_file, content)
                 
                 # Resolve local imports
                 local_imports = self.dep_parser.resolve_local_imports(
@@ -80,13 +81,13 @@ class RepositoryAnalyzer:
                 )
                 
                 # Get language
-                language = self.metrics_analyzer.get_file_language(py_file)
+                language = self.metrics_analyzer.get_file_language(source_file)
                 language_counts[language] += 1
                 
                 # Create node
                 node = NodeData(
                     id=rel_path,
-                    name=py_file.name,
+                    name=source_file.name,
                     path=rel_path,
                     loc=metrics['loc'],
                     complexity=round(metrics['complexity'], 2),
